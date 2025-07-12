@@ -1,0 +1,16 @@
+[package]
+name = "surreal-query"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+members = ["macros"]
+
+[dependencies]
+surreal-query-macros = { path = "./macros" }
+surrealdb-core = { version = "2.3.7", default-features = false, features = ["kv-mem"] }
+serde = { version = "1", default-features = false, features = ["derive"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["test-util"] }
+surrealdb = { version = "2.3.7", default-features = false, features = ["kv-mem"] }

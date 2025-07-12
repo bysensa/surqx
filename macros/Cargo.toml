@@ -1,0 +1,15 @@
+[package]
+name = "surreal-query-macros"
+version = "0.0.1"
+description = "Macros for the surreal-query crate"
+license = "BSD-2-Clause"
+edition = "2024"
+rust-version = "1.88.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1"
+nanoid = "0.4.0"
+proc-macro2 = "1"
