@@ -118,6 +118,22 @@ pub(crate) fn sql_from_macro(
                             );
                             variables.entry(name).or_insert(ident);
                         }
+                    } else if x.as_char() == '\'' && x.spacing() == Spacing::Joint {
+                        let Some(TokenTree::Ident(ident)) = tokens.next() else {
+                            return Err(compile_error(
+                                Some((span, span)),
+                                "Expect SurrealDB string prefix after `'`",
+                            ));
+                        };
+                        let prefix = ident.to_string();
+                        if prefix.len() > 1 {
+                            return Err(compile_error(
+                                Some((span, span)),
+                                "SurrealDB string prefix must be single char",
+                            ));
+                        }
+                        write!(query, "{ident}").unwrap();
+                        loc.column += 1;
                     } else if x.as_char() == '#' && x.spacing() == Spacing::Joint {
                         // Convert '##' to '//', because otherwise it's
                         // impossible to use the Python operators '//' and '//='.
