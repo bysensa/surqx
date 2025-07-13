@@ -10,6 +10,8 @@ A Rust library that provides a convenient macro for writing SurrealDB queries wi
 - **Transaction support**: Full support for SurrealDB transactions and complex queries
 - **Compile-time validation** [in future]: Catch errors at compile time rather than runtime
 
+P.S: A huge thank you to @m-ou-se for the work done on the inline-python library, which inspired the implementation of this solution.
+
 ## Installation
 
 Add this to your `Cargo.toml`:
