@@ -1,8 +1,8 @@
 [package]
 name = "surqx"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
-rust-version = "1.88.0"
+rust-version = "1.88"
 license-file = "LICENSE"
 repository = "https://github.com/bysensa/surqx"
 description = "Query macro for SurrealDB"
@@ -15,7 +15,7 @@ keywords = ["surrealdb", "query", "proc-macro"]
 members = ["example", "macros"]
 
 [dependencies]
-surqx-macros = { path = "./macros", version = "0.1.1" }
+surqx-macros = { path = "./macros", version = "0.1.2" }
 surrealdb-core = { version = "2.3.7", default-features = false, features = ["kv-mem"] }
 serde = { version = "1", default-features = false, features = ["derive"] }
 
