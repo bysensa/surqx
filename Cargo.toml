@@ -1,13 +1,13 @@
 [package]
-name = "surreal-query"
+name = "surqx"
 version = "0.1.0"
 edition = "2024"
 
 [workspace]
-members = [ "example","macros"]
+members = ["example", "macros"]
 
 [dependencies]
-surreal-query-macros = { path = "./macros" }
+surqx-macros = { path = "./macros" }
 surrealdb-core = { version = "2.3.7", default-features = false, features = ["kv-mem"] }
 serde = { version = "1", default-features = false, features = ["derive"] }
 

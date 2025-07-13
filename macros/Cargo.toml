@@ -1,5 +1,5 @@
 [package]
-name = "surreal-query-macros"
+name = "surqx-macros"
 version = "0.0.1"
 description = "Macros for the surreal-query crate"
 license = "BSD-2-Clause"
