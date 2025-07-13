@@ -1,4 +1,4 @@
-use surreal_query_macros::sql;
+use surqx::{Vars, sql};
 
 fn main() {
     let name = "";

@@ -1,17 +1,18 @@
-pub use surreal_query_macros::sql;
+pub use surqx_macros::sql;
 pub use types::Vars;
 
 mod types;
 
-mod surreal_query {
+mod surqx {
+    pub use super::sql;
     pub use super::types::Vars;
 }
 
 #[cfg(test)]
 mod tests {
-    use super::surreal_query;
+    use super::surqx;
     use serde::{Deserialize, Serialize};
-    use surreal_query_macros::sql;
+    use surqx_macros::sql;
     use surrealdb::Surreal;
     use surrealdb::engine::any::{Any, connect};
 

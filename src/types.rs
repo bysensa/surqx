@@ -2,7 +2,7 @@ use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
 use std::collections::BTreeMap;
 use std::error::Error;
-use surrealdb_core::sql::{Value, value};
+use surrealdb_core::sql::Value;
 
 pub struct Vars<'this> {
     err: Vec<Box<dyn Error>>,

@@ -31,7 +31,7 @@ fn sql_impl(input: TokenStream) -> Result<TokenStream, TokenStream> {
     let query  = proc_macro2::Literal::string(sql.as_str());
     let vars = variables.into_iter().map(|(name, ident)| quote! {.put(#name, #ident)}).collect::<Vec<_>>();
     let out = quote! {
-        (#query, surreal_query::Vars::new()#(#vars)*)
+        (#query, surqx::Vars::new()#(#vars)*)
     };
     let out: TokenStream = out.into();
     Ok(out)
