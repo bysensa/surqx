@@ -1,10 +1,13 @@
 [package]
 name = "surqx-macros"
-version = "0.0.1"
-description = "Macros for the surreal-query crate"
-license = "BSD-2-Clause"
+version = "0.1.0"
+description = "Macros for the surqx crate"
+license = "Apache-2.0"
 edition = "2024"
 rust-version = "1.88.0"
+repository = "https://github.com/bysensa/surqx"
+categories = ["database", "rust-patterns"]
+keywords = ["surrealdb", "query", "proc-macro"]
 
 [lib]
 proc-macro = true
