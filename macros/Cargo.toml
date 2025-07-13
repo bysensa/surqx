@@ -1,6 +1,6 @@
 [package]
 name = "surqx-macros"
-version = "0.1.0"
+version = "0.1.1"
 description = "Macros for the surqx crate"
 license = "Apache-2.0"
 edition = "2024"

@@ -3,6 +3,7 @@ pub use types::Vars;
 
 mod types;
 
+#[cfg(test)]
 mod surqx {
     pub use super::sql;
     pub use super::types::Vars;
@@ -12,7 +13,7 @@ mod surqx {
 mod tests {
     use super::surqx;
     use serde::{Deserialize, Serialize};
-    use surqx_macros::sql;
+    use surqx::sql;
     use surrealdb::Surreal;
     use surrealdb::engine::any::{Any, connect};
 
@@ -29,7 +30,7 @@ mod tests {
         let name = "John";
         let age = 18;
         let (query, vars) = sql! {
-            CREATE person SET name = &name;
+            CREATE person SET name = &name, age = &age;
             SELECT * FROM person;
         };
         let query = db.query(query).bind(vars);
@@ -41,8 +42,6 @@ mod tests {
     async fn test_specific_query() {
         let db = db().await;
 
-        let name = "John";
-        let age = 18;
         let (query, vars) = sql! {
             SELECT id, search::highlight("<b>", "</b>", 1) AS title
             FROM book WHERE title @1@ "rust web";
