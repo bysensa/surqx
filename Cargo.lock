@@ -3405,7 +3405,7 @@ dependencies = [
 
 [[package]]
 name = "surqx-macros"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "nanoid",
  "proc-macro2",
