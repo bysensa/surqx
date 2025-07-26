@@ -16,3 +16,7 @@ proc-macro = true
 quote = "1"
 nanoid = "0.4.0"
 proc-macro2 = "1"
+surrealdb-core = { version = "2.3.7", default-features = false }
+unicase = "2.7.0"
+phf_macros = "0.11.3"
+phf = "0.11.3"

@@ -1,9 +1,13 @@
+use crate::lang::is_keyword;
 use nanoid::nanoid;
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 use std::{
     collections::BTreeMap,
     fmt::{Display, Write},
 };
+use surrealdb_core::syn::lexer::keywords::could_be_reserved;
+use surrealdb_core::syn::token::{Keyword, TokenKind};
+use surrealdb_core::syn::{could_be_reserved_keyword, kind};
 
 pub const ID_ALPHABET: [char; 63] = [
     '_', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
@@ -26,6 +30,107 @@ pub(crate) fn braces(t: impl IntoIterator<Item = TokenTree>) -> TokenTree {
 
 pub(crate) fn string(s: &str) -> TokenTree {
     TokenTree::Literal(Literal::string(s))
+}
+
+pub(crate) fn process_sql(
+    input: TokenStream,
+    variables: Option<&mut BTreeMap<String, proc_macro2::Ident>>,
+) -> Result<String, TokenStream> {
+    fn process_tokens(
+        query: &mut String,
+        input: TokenStream,
+        mut variables: Option<&mut BTreeMap<String, proc_macro2::Ident>>,
+    ) -> Result<(), TokenStream> {
+        let mut tokens = input.into_iter();
+        while let Some(token) = tokens.next() {
+            let span = token.span();
+            match token {
+                TokenTree::Punct(el) if variables.is_some() && el.as_char() == '&' => {
+                    let Some(TokenTree::Ident(ident)) = tokens.next() else {
+                        unreachable!()
+                    };
+                    let id = nanoid!(8, &ID_ALPHABET);
+                    let name = format!("{}_{}", ident.to_string(), id);
+                    write!(query, "${name}").unwrap();
+                    if let Some(variables) = &mut variables {
+                        let ident = proc_macro2::Ident::new(
+                            ident.to_string().as_str(),
+                            proc_macro2::Span::from(ident.span()),
+                        );
+                        variables.entry(name).or_insert(ident);
+                    }
+                }
+                TokenTree::Punct(el) if el.as_char() == '\'' && el.spacing() == Spacing::Joint => {
+                    let Some(TokenTree::Ident(ident)) = tokens.next() else {
+                        return Err(compile_error(
+                            Some((span, span)),
+                            "Expect SurrealDB string prefix after `'`",
+                        ));
+                    };
+                    let prefix = ident.to_string();
+                    if prefix.len() > 1 {
+                        return Err(compile_error(
+                            Some((span, span)),
+                            "SurrealDB string prefix must be single char",
+                        ));
+                    }
+                    let Some(TokenTree::Literal(lit)) = tokens.next() else {
+                        return Err(compile_error(
+                            Some((span, span)),
+                            "Expect literal after prefix '`'",
+                        ));
+                    };
+                    let lit = lit.to_string();
+                    write!(query, "{prefix}{lit}").unwrap();
+                }
+                TokenTree::Punct(el) if el.as_char() == ':' => {
+                    while query.ends_with(" ") {
+                        query.pop();
+                    }
+                    query.push(el.as_char())
+                }
+                TokenTree::Punct(el) if el.as_char() == ';' => {
+                    write!(query, "{el}\n").unwrap();
+                }
+                TokenTree::Punct(el) if el.as_char() == ',' => {
+                    write!(query, "{el} ").unwrap();
+                }
+                TokenTree::Punct(el) => query.push(el.as_char()),
+                TokenTree::Group(x) => {
+                    let (start, end) = match x.delimiter() {
+                        Delimiter::Parenthesis => ("(", ")"),
+                        Delimiter::Brace => ("{", "}"),
+                        Delimiter::Bracket => ("[", "]"),
+                        Delimiter::None => ("", ""),
+                    };
+
+                    write!(query, "{start}").unwrap();
+                    process_tokens(query, x.stream(), variables.as_deref_mut())?;
+                    write!(query, "{end}").unwrap();
+                }
+                TokenTree::Ident(ident) if is_keyword(&ident.to_string()) => {
+                    write!(query, " {ident} ").unwrap();
+                }
+                TokenTree::Ident(ident) => {
+                    write!(query, "{ident}").unwrap();
+                }
+                TokenTree::Literal(lit) => {
+                    let lit = lit.to_string();
+                    query.push_str(&lit);
+                }
+                _ => unreachable!(),
+            }
+        }
+        Ok(())
+    }
+
+    let mut sql = String::new();
+    process_tokens(&mut sql, input, variables)?;
+    Ok(cleanup_query(sql))
+}
+
+fn cleanup_query(sql: String) -> String {
+    sql.replace("  ", " ").replace(":: ", "::")
 }
 
 /// Turn the tokens into a string with reconstructed whitespace.
@@ -53,13 +158,13 @@ pub(crate) fn sql_from_macro(
                 query.push('\n');
                 loc.line += 1;
             }
-            let first_indent = *loc.first_indent.get_or_insert(column);
-            let indent = column.checked_sub(first_indent);
-            let indent =
-                indent.ok_or_else(|| compile_error(Some((span, span)), "invalid indent"))?;
-            for _ in 0..indent {
-                query.push(' ');
-            }
+            // let first_indent = *loc.first_indent.get_or_insert(column);
+            // let indent = column.checked_sub(first_indent);
+            // let indent =
+            //     indent.ok_or_else(|| compile_error(Some((span, span)), "invalid indent"))?;
+            // for _ in 0..indent {
+            //     query.push(' ');
+            // }
             loc.column = column;
         } else if line == loc.line {
             while column > loc.column {

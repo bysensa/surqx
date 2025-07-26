@@ -3408,8 +3408,12 @@ name = "surqx-macros"
 version = "0.1.2"
 dependencies = [
  "nanoid",
+ "phf",
+ "phf_macros",
  "proc-macro2",
  "quote",
+ "surrealdb-core",
+ "unicase",
 ]
 
 [[package]]
